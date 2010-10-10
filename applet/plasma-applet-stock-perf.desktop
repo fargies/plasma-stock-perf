@@ -1,15 +1,15 @@
 [Desktop Entry]
-Name=Stock Quote
-Comment=Stock Quote Plasmoid
+Name=Stock Perf
+Comment=Stock Perf Plasmoid
 Type=Service
 Icon=kchart
 ServiceTypes=Plasma/Applet
  
-X-KDE-Library=plasma_applet_stock_quote
-X-KDE-PluginInfo-Author=Ryan Winter
-X-KDE-PluginInfo-Email=wintered@gmail.com
-X-KDE-PluginInfo-Name=stockquote
-X-KDE-PluginInfo-Version=2.1
+X-KDE-Library=plasma_applet_stock_perf
+X-KDE-PluginInfo-Author=Sylvain Fargier
+X-KDE-PluginInfo-Email=fargier.sylvain@free.fr
+X-KDE-PluginInfo-Name=stockperf
+X-KDE-PluginInfo-Version=1.0
 X-KDE-PluginInfo-Website=
 X-KDE-PluginInfo-Category=Online Services
 X-KDE-PluginInfo-Depends=
