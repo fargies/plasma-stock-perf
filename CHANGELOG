@@ -1,0 +1,6 @@
+== 2.1 ==
+- BUG: Stock is now left clickable only
+- BUG: Link to the generic yahoo finance page instead of the au specific one
+- ENHANCEMENT: KDE proxies are now supported
+- ENHANCEMENT: Opacity is now configurable
+- ENHANCEMENT: Currency conversions to 4 decimal places

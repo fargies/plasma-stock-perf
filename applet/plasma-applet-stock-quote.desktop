@@ -1,0 +1,18 @@
+[Desktop Entry]
+Name=Stock Quote
+Comment=Stock Quote Plasmoid
+Type=Service
+Icon=kchart
+ServiceTypes=Plasma/Applet
+ 
+X-KDE-Library=plasma_applet_stock_quote
+X-KDE-PluginInfo-Author=Ryan Winter
+X-KDE-PluginInfo-Email=wintered@gmail.com
+X-KDE-PluginInfo-Name=stockquote
+X-KDE-PluginInfo-Version=2.1
+X-KDE-PluginInfo-Website=
+X-KDE-PluginInfo-Category=Online Services
+X-KDE-PluginInfo-Depends=
+X-KDE-PluginInfo-License=GPL
+X-KDE-PluginInfo-EnabledByDefault=true
+

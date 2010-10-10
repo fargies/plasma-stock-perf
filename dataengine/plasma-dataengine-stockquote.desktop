@@ -1,0 +1,16 @@
+[Desktop Entry]
+Name=Stock Quote
+Comment=Fetch stock information for Plasmoids
+Type=Service
+ 
+X-KDE-ServiceTypes=Plasma/DataEngine
+X-KDE-Library=plasma_engine_stock_quote
+
+X-KDE-PluginInfo-Author=Ryan Winter
+X-KDE-PluginInfo-Email=wintered@gmail.com
+X-KDE-PluginInfo-Name=stockquote
+X-KDE-PluginInfo-Version=1.2
+X-KDE-PluginInfo-Website=http://winterbug.com
+X-KDE-PluginInfo-Category=Online Services
+X-KDE-PluginInfo-License=GPL
+X-KDE-PluginInfo-EnabledByDefault=true
