@@ -6,7 +6,7 @@
 
 namespace
 {
-    const QString title = "Stock Quote";
+    const QString title = "Stock Performance";
 }
 
 //-----------------------------------------------------------------------------
@@ -70,5 +70,5 @@ HeaderItem::paint(QPainter* painter,
     painter->drawPath(path);
 
     painter->setPen(Qt::white);
-    painter->drawText(frame, Qt::AlignCenter, "Stock Quote");
+    painter->drawText(frame, Qt::AlignCenter, title);
 }

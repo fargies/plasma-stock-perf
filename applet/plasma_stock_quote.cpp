@@ -11,6 +11,7 @@
 
 #include "header_item.h"
 #include "stock_item.h"
+#include "overall_stock_item.h"
 #include "footer_item.h"
 
 #include <QtGui>
@@ -31,6 +32,7 @@ PlasmaStockQuote::PlasmaStockQuote(QObject *parent, const QVariantList &args)
     m_footer(0),
     m_header(0),
     m_widgets(),
+    m_overall(NULL),
     m_stock_list(),
     m_opacity(1.0)
 {
@@ -57,7 +59,7 @@ PlasmaStockQuote::graphicsWidget()
 
     // read in the stock list
     KConfigGroup configGroup = config();
-    m_stock_list = configGroup.readEntry("stocks",  QStringList());
+    m_stock_list << configGroup.readEntry("stocks",  QVariantList());
     m_opacity    = configGroup.readEntry("opacity", 1.0);
 
     m_engine = dataEngine("stockquote");
@@ -86,7 +88,7 @@ PlasmaStockQuote::graphicsWidget()
 
     return m_graphics_widget;
 }
-
+#include <iostream>
 //-----------------------------------------------------------------------------
 // protected slots:
 //-----------------------------------------------------------------------------
@@ -96,14 +98,12 @@ PlasmaStockQuote::configAccepted()
     m_opacity    = m_ui.opacity->value() / 100.0;
     m_graphics_widget->setOpacity(m_opacity);
 
-    if (m_stock_list != m_ui.stockCodes->items())
-    {
-        m_stock_list = m_ui.stockCodes->items();
-        updateSources();
-    }
+    QVariantList vlist = m_ui.stockTable->data();
+    m_stock_list << vlist;
+    updateSources();
 
     KConfigGroup configGroup = config();
-    configGroup.writeEntry("stocks",  m_stock_list);
+    configGroup.writeEntry("stocks",  vlist);
     configGroup.writeEntry("opacity", m_opacity);
 
     emit configNeedsSaving();
@@ -116,9 +116,12 @@ void
 PlasmaStockQuote::createConfigurationInterface(KConfigDialog* parent)
 {
     QWidget* widget = new QWidget;
+    QVariantList vlist;
+    m_stock_list >> vlist;
 
     m_ui.setupUi(widget);
-    m_ui.stockCodes->setItems(m_stock_list);
+
+    m_ui.stockTable->setData(vlist);
     m_ui.opacity->setValue(m_opacity * 100);
 
     parent->setButtons(KDialog::Ok | KDialog::Cancel);
@@ -150,6 +153,7 @@ PlasmaStockQuote::updateSources()
          iter != m_widgets.end(); ++iter)
     {
         m_engine->disconnectSource(iter.key(), iter.value());
+        m_engine->disconnectSource(iter.key(), m_overall);
 
         m_layout->removeItem(iter.value());
 
@@ -157,21 +161,32 @@ PlasmaStockQuote::updateSources()
         m_widgets.erase(iter);
     }
 
-    // in with the new
-    bool even = false;
-    for (QStringList::iterator iter = m_stock_list.begin();
-         iter != m_stock_list.end(); ++iter)
-    {
-        StockItem* item = new StockItem(even, this);
-
-        m_engine->connectSource(iter->toUpper(), item);
-
-        m_widgets.insert(*iter, item);
-
-        m_layout->insertItem(m_layout->count() - 1, item);
-
-        even = !even;
+    if (m_overall != NULL) {
+      m_layout->removeItem(m_overall);
+      delete m_overall;
     }
+
+    bool even = false;
+    m_overall = new OverallStockItem((m_stock_list.size() % 2) ? even : !even, this);
+    // in with the new
+    for (StockDataList::const_iterator it = m_stock_list.begin();
+         it != m_stock_list.end(); ++it, even = !even) {
+      QString sym = it->m_symbol.toUpper();
+
+      if (sym.isEmpty() || m_widgets.count(sym) != 0)
+        continue;
+
+      StockItem *item = new StockItem(even, it->m_count, it->m_price_paid, this);
+      m_overall->addStock(sym, it->m_count, it->m_price_paid);
+
+      m_engine->connectSource(sym, item);
+      m_engine->connectSource(sym, m_overall);
+
+      m_widgets.insert(sym, item);
+
+      m_layout->insertItem(m_layout->count() - 1, item);
+    }
+    m_layout->insertItem(m_layout->count() - 1, m_overall);
 
     m_graphics_widget->setMinimumSize(m_layout->sizeHint(Qt::MinimumSize));
     m_graphics_widget->setPreferredSize(m_layout->sizeHint(Qt::PreferredSize));

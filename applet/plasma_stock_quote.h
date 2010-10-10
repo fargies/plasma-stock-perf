@@ -5,8 +5,11 @@
 #include <Plasma/PopupApplet>
 #include <Plasma/DataEngine>
 
+#include "stock_data.h"
+
 class FooterItem;
 class HeaderItem;
+class OverallStockItem;
 
 class QGraphicsWidget;
 class QGraphicsLinearLayout;
@@ -43,8 +46,9 @@ class PlasmaStockQuote : public Plasma::PopupApplet
     FooterItem*                m_footer;
     HeaderItem*                m_header;
     WidgetMap                  m_widgets;
+    OverallStockItem*          m_overall;
 
-    QStringList                m_stock_list;
+    StockDataList              m_stock_list;
     double                     m_opacity;
 };
 

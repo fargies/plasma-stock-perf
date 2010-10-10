@@ -4,12 +4,14 @@
 
 #include <Plasma/DataEngine>
 
+#include "stock_data.h"
+
 class StockItem : public QGraphicsWidget
 {
   Q_OBJECT
 
   public:
-    StockItem(bool even, QGraphicsItem* parent = 0);
+    StockItem(bool even, unsigned int count, double price_paid, QGraphicsItem* parent = 0);
 
     virtual void paint(QPainter* painter, 
                        const QStyleOptionGraphicsItem* option,
@@ -24,12 +26,11 @@ class StockItem : public QGraphicsWidget
     virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
 
   private:
-    const bool m_even;
-    bool       m_hover;
-    QString    m_symbol;
-    QString    m_name;
-    double     m_price;
-    double     m_change;
-    double     m_percent_change;
+    const bool          m_even;
+    bool                m_hover;
+    StockData           m_data;
+    double              m_change_percent;
+    double              m_change;
+    double              m_value;
 };
 

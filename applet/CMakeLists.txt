@@ -1,8 +1,11 @@
 set(stock_quote_SRCS
     plasma_stock_quote.cpp
     stock_item.cpp
+    overall_stock_item.cpp
     header_item.cpp
-    footer_item.cpp)
+    footer_item.cpp
+    stock_data.cpp
+    stock_config.cpp)
 
 kde4_add_ui_files(stock_quote_SRCS plasma_stock_quote_config.ui)
 kde4_add_plugin(plasma_applet_stock_quote ${stock_quote_SRCS})

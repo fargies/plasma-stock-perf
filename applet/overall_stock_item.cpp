@@ -1,8 +1,33 @@
-#include "stock_item.h"
+/*
+** Copyright (C) 2010 Fargier Sylvain <fargier.sylvain@free.fr>
+**
+** This software is provided 'as-is', without any express or implied
+** warranty.  In no event will the authors be held liable for any damages
+** arising from the use of this software.
+**
+** Permission is granted to anyone to use this software for any purpose,
+** including commercial applications, and to alter it and redistribute it
+** freely, subject to the following restrictions:
+**
+** 1. The origin of this software must not be misrepresented; you must not
+**    claim that you wrote the original software. If you use this software
+**    in a product, an acknowledgment in the product documentation would be
+**    appreciated but is not required.
+** 2. Altered source versions must be plainly marked as such, and must not be
+**    misrepresented as being the original software.
+** 3. This notice may not be removed or altered from any source distribution.
+**
+** overall_stock_item.cpp
+**
+**        Created on: Sep 29, 2010
+**            Author: fargie_s
+**
+*/
 
+#include "overall_stock_item.h"
+
+#include <QMutexLocker>
 #include <Plasma/Theme>
-
-#include <KRun>
 
 #include <QtGui>
 
@@ -18,14 +43,12 @@ namespace
 //-----------------------------------------------------------------------------
 // public:
 //-----------------------------------------------------------------------------
-StockItem::StockItem(bool even, unsigned int count, double price_paid, QGraphicsItem* parent)
+OverallStockItem::OverallStockItem(bool even, QGraphicsItem* parent)
     :
     QGraphicsWidget(parent),
     m_even(even),
     m_hover(false),
-    m_data("", count, price_paid),
-    m_change_percent(0.0),
-    m_change(0.0)
+    m_total_paid(0.0)
 {
     setAcceptHoverEvents(true);
 
@@ -39,7 +62,7 @@ StockItem::StockItem(bool even, unsigned int count, double price_paid, QGraphics
 
 //-----------------------------------------------------------------------------
 void
-StockItem::paint(QPainter* painter,
+OverallStockItem::paint(QPainter* painter,
                  const QStyleOptionGraphicsItem* option,
                  QWidget* widget)
 {
@@ -81,19 +104,13 @@ StockItem::paint(QPainter* painter,
     painter->setBrush(QBrush(gradient));
     painter->drawRect(frame);
 
-    if (m_data.m_name.isEmpty()) return;
-
     frame.adjust(10, 1, -10, -1);
 
     // paint the text
     QString string;
     QTextStream stream(&string);
 
-    if (m_data.m_symbol.contains("=X"))
-      stream.setRealNumberPrecision(4);
-    else
-      stream.setRealNumberPrecision(2);
-
+    stream.setRealNumberPrecision(2);
     stream.setRealNumberNotation(QTextStream::FixedNotation);
     QFont font(painter->font());
 
@@ -101,65 +118,61 @@ StockItem::paint(QPainter* painter,
     font.setBold(true);
     painter->setFont(font);
     painter->setPen(Qt::white);
-    painter->drawText(frame, Qt::AlignLeft  | Qt::AlignTop, m_data.m_symbol);
+    painter->drawText(frame, Qt::AlignLeft  | Qt::AlignBottom, "Overall");
 
-    // name
-    font.setBold(false);
-    painter->setFont(font);
-    painter->drawText(frame, Qt::AlignLeft  | Qt::AlignBottom, m_data.m_name);
-
+    m_lock.lock();
     // change
+    double total = 0;
+    for (QHash< QString, StockData >::const_iterator it = m_stocks.begin();
+         it != m_stocks.end(); ++it) {
+      total += it->m_price;
+    }
+    m_lock.unlock();
 
-    stream << m_value;
+    stream << total;
     painter->drawText(frame, Qt::AlignRight | Qt::AlignTop, string);
 
-    if (!m_data.m_symbol.contains("=X"))
-    {
-        // change
-        stream.setRealNumberPrecision(2);
-        stream.setNumberFlags(QTextStream::ForceSign);
-        string.clear();
-        stream << m_change << " (" << m_change_percent << "%)";
-        painter->setPen(m_change < 0 ? Qt::red : Qt::green);
-        painter->drawText(frame, Qt::AlignRight | Qt::AlignBottom, string);
-    }
+    // change
+    stream.setNumberFlags(QTextStream::ForceSign);
+    string.clear();
+    double var = total - m_total_paid;
+    stream << var;
+    painter->setPen(var < 0 ? Qt::red : Qt::green);
+    painter->drawText(frame, Qt::AlignRight | Qt::AlignBottom, string);
+}
+
+void OverallStockItem::addStock(const QString &name, const unsigned int count, const double price) {
+  QMutexLocker locker(&m_lock);
+  QHash< QString, StockData >::iterator it = m_stocks.find(name);
+
+  if (it != m_stocks.end())
+    m_total_paid -= it->m_price_paid;
+  m_total_paid += price * count;
+
+  m_stocks.insert(name, StockData(name, count, price * count));
 }
 
 //-----------------------------------------------------------------------------
 // public slots:
 //-----------------------------------------------------------------------------
 void
-StockItem::dataUpdated(const QString&                  source,
+OverallStockItem::dataUpdated(const QString&                  source,
                        const Plasma::DataEngine::Data& data)
 {
     Q_UNUSED(source);
+    QMutexLocker locker(&m_lock);
+    QHash< QString, StockData >::iterator it = m_stocks.find(data["symbol"].toString());
 
-    m_data.m_symbol         = data["symbol"].toString();
-    m_data.m_name           = data["name"].toString();
-    m_data.m_price          = data["price"].toDouble();
-    m_change_percent = m_data.getVariation();
-    m_change = (m_data.m_price - m_data.m_price_paid) * m_data.m_count;
-    m_value = m_data.m_price * m_data.m_count;
+    if (it == m_stocks.end())
+      return;
 
+    it->m_price = it->m_count * data["price"].toDouble();
     update();
 }
 
 //-----------------------------------------------------------------------------
-// protected:
-//-----------------------------------------------------------------------------
 void
-StockItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
-{
-    if (Qt::LeftButton == event->button())
-    {
-        const QString url = "http://finance.yahoo.com/q?s=" + m_data.m_symbol;
-        KRun::runUrl(url, "text/html", 0);
-    }
-}
-
-//-----------------------------------------------------------------------------
-void
-StockItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
+OverallStockItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
     Q_UNUSED(event);
 
@@ -169,7 +182,7 @@ StockItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 
 //-----------------------------------------------------------------------------
 void
-StockItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
+OverallStockItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
     Q_UNUSED(event);
 
@@ -177,4 +190,4 @@ StockItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
     update();
 }
 
-#include "stock_item.moc"
+#include "overall_stock_item.moc"

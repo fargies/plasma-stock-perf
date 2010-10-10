@@ -106,7 +106,6 @@ StockQuoteEngine::dataArrived(KIO::Job* job, const QByteArray& data)
         setData(symbol, "name",           name);
         setData(symbol, "price",          price);
         setData(symbol, "change",         change);
-        setData(symbol, "percent_change", 100 * change / (price - change));
     }
 }
 

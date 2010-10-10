@@ -47,19 +47,16 @@
     </widget>
    </item>
    <item>
-    <widget class="KEditListBox" name="stockCodes">
-     <property name="title">
-      <string>Stock Codes</string>
-     </property>
+    <widget class="StockTable" name="stockTable">
     </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>KEditListBox</class>
-   <extends>QGroupBox</extends>
-   <header>keditlistbox.h</header>
+   <class>StockTable</class>
+   <extends>QTableWidget</extends>
+   <header>stock_config.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
