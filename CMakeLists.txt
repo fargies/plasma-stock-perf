@@ -5,6 +5,12 @@ project(StockQuote)
 find_package(KDE4 REQUIRED)
 include(KDE4Defaults)
 
+find_library(HTMLTIDY_LIBS tidy)
+
+if(NOT HTMLTIDY_LIBS)
+  message(FATAL_ERROR "libtidy is required, please install htmltidy")
+endif(NOT HTMLTIDY_LIBS)
+
 add_definitions(${QT_DEFINITIONS} 
                 ${KDE4_DEFINITIONS})
 

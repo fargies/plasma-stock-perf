@@ -27,22 +27,50 @@
 #ifndef STOCK_CONFIG_H_
 #define STOCK_CONFIG_H_
 
+#include <stock_data.h>
 #include <QTableWidget>
 #include <QVariant>
+#include <QGroupBox>
+#include <QPushButton>
+
+class QClipboard;
 
 class StockTable : public QTableWidget
 {
   Q_OBJECT
-
 public:
   StockTable(QWidget *parent = 0);
 
   QVariantList data() const;
-  void setData(QVariantList &list);
+  void setData(const QVariantList &list);
+  void setData(const StockDataList &list);
+};
 
-public slots:
-  void cellChangedSlot(int row, int column);
+class StockConfig : public QGroupBox {
+  Q_OBJECT
+public:
+  StockConfig(QWidget *parent = 0);
 
+  QVariantList data() const;
+  void setData(const QVariantList &list);
+  void setData(const StockDataList &list);
+
+protected:
+  virtual void dragEnterEvent(QDragEnterEvent *event);
+  virtual void dropEvent(QDropEvent * event);
+
+protected slots:
+  void addStock();
+  void removeStock();
+  void moveUp();
+  void moveDown();
+  void stockActivated(const QModelIndex&, const QModelIndex&);
+  void updateClipboard();
+
+protected:
+  StockTable *m_stocks;
+  QPushButton *m_add, *m_remove, *m_up, *m_down;
+  QClipboard *m_clip;
 };
 
 #endif /* STOCK_CONFIG_H_ */

@@ -98,8 +98,10 @@ PlasmaStockQuote::configAccepted()
     m_opacity    = m_ui.opacity->value() / 100.0;
     m_graphics_widget->setOpacity(m_opacity);
 
-    QVariantList vlist = m_ui.stockTable->data();
+    QVariantList vlist = m_ui.stockConfig->data();
+    m_stock_list.clear();
     m_stock_list << vlist;
+
     updateSources();
 
     KConfigGroup configGroup = config();
@@ -121,7 +123,7 @@ PlasmaStockQuote::createConfigurationInterface(KConfigDialog* parent)
 
     m_ui.setupUi(widget);
 
-    m_ui.stockTable->setData(vlist);
+    m_ui.stockConfig->setData(vlist);
     m_ui.opacity->setValue(m_opacity * 100);
 
     parent->setButtons(KDialog::Ok | KDialog::Cancel);
@@ -167,7 +169,7 @@ PlasmaStockQuote::updateSources()
     }
 
     bool even = false;
-    m_overall = new OverallStockItem((m_stock_list.size() % 2) ? even : !even, this);
+    m_overall = new OverallStockItem((m_stock_list.size() % 2) ? !even : even, this);
     // in with the new
     for (StockDataList::const_iterator it = m_stock_list.begin();
          it != m_stock_list.end(); ++it, even = !even) {

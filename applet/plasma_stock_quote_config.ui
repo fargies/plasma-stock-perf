@@ -47,15 +47,15 @@
     </widget>
    </item>
    <item>
-    <widget class="StockTable" name="stockTable">
+    <widget class="StockConfig" name="stockConfig">
     </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>StockTable</class>
-   <extends>QTableWidget</extends>
+   <class>StockConfig</class>
+   <extends>QGroupBox</extends>
    <header>stock_config.h</header>
   </customwidget>
  </customwidgets>
