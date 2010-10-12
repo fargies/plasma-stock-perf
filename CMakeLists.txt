@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(StockPerf)
 
+OPTION(DATAENGINE "Enable dataengine" ON)
+
 find_package(KDE4 REQUIRED)
 include(KDE4Defaults)
 
@@ -18,5 +20,9 @@ include_directories(${CMAKE_SOURCE_DIR}
                     ${CMAKE_BINARY_DIR} 
                     ${KDE4_INCLUDES})
 
+if (DATAENGINE)
 add_subdirectory(dataengine)
+endif (DATAENGINE)
+
 add_subdirectory(applet)
+
