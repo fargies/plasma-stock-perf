@@ -271,7 +271,7 @@ void StockConfig::dropEvent(QDropEvent * event) {
   const QMimeData *mimeData = event->mimeData();
 
   if (mimeData->hasHtml()) {
-    QString str = QString::fromUtf16((const ushort *) mimeData->data("text/html").data());
+    QString str = mimeData->html();
 
     StockParser *parser = StockParserFactory::getInstance().find(str);
     if (parser) {
@@ -290,7 +290,7 @@ void StockConfig::updateClipboard() {
   const QMimeData *mimeData = m_clip->mimeData();
 
   if (mimeData->hasHtml()) {
-    QString str = QString::fromUtf16((const ushort *) mimeData->data("text/html").data());
+    QString str = mimeData->html();
 
     StockParser *parser = StockParserFactory::getInstance().find(str);
     if (parser) {
