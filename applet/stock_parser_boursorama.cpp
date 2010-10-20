@@ -32,6 +32,7 @@
 #include <tidy.h>
 #include <buffio.h>
 #include <iostream>
+#include <stdint.h>
 
 #include "stock_parser_boursorama.h"
 

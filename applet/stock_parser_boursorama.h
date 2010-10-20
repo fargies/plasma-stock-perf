@@ -28,7 +28,6 @@
 #define STOCK_PARSER_BOUSORAMA_H_
 
 #include <QString>
-#include <stdint.h>
 #include "stock_parser.h"
 
 class StockParserBoursorama : public StockParser

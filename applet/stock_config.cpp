@@ -39,6 +39,7 @@
 #include <QApplication>
 
 #include <iostream>
+#include <stdint.h>
 
 #include "stock_config.h"
 #include "stock_parser.h"
