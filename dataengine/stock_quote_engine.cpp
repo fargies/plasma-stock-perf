@@ -92,13 +92,11 @@ StockQuoteEngine::jobFinished(KJob *job)
     setData("status", "time", QDateTime::currentDateTime());
     setData("status", "valid", true);
 
-    std::cerr << "==" << m_data.toAscii().data() << "==" << std::endl;
     QStringList lines = m_data.split("\r\n");
     m_data.clear();
 
     for (QStringList::iterator iter = lines.begin(); iter != lines.end(); ++iter)
     {
-      std::cerr << "error: "<< iter->toAscii().data() << std::endl;
         // if there is a commar in a quoted string, then we drop the commar as
         // it breaks the tokeniser
         *iter = fixQuotes(*iter);
