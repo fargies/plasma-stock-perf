@@ -54,7 +54,10 @@ StockQuoteEngine::sourceRequestEvent(const QString& name)
 void
 StockQuoteEngine::update()
 {
-    const QString stocks = sources().join(",");
+    QStringList src = sources();
+    src.pop_front(); // Remove "status" that's always in front
+
+    const QString stocks = src.join(",");
 
     if (!stocks.isEmpty())
     {
@@ -68,6 +71,8 @@ StockQuoteEngine::update()
 
         connect(job,  SIGNAL(data(KIO::Job*, const QByteArray&)),
                 this, SLOT(dataArrived(KIO::Job*, const QByteArray&)));
+        connect(job,  SIGNAL(result(KJob*)),
+                this, SLOT(jobFinished(KJob*)));
     }
 }
 
@@ -76,22 +81,33 @@ void
 StockQuoteEngine::dataArrived(KIO::Job* job, const QByteArray& data)
 {
     Q_UNUSED(job);
+    m_data.append(data);
+}
+
+void
+StockQuoteEngine::jobFinished(KJob *job)
+{
+    Q_UNUSED(job);
 
     setData("status", "time", QDateTime::currentDateTime());
     setData("status", "valid", true);
 
-    QString     blob  = data;
-    QStringList lines = blob.split("\r\n");
+    std::cerr << "==" << m_data.toAscii().data() << "==" << std::endl;
+    QStringList lines = m_data.split("\r\n");
+    m_data.clear();
 
     for (QStringList::iterator iter = lines.begin(); iter != lines.end(); ++iter)
     {
+      std::cerr << "error: "<< iter->toAscii().data() << std::endl;
         // if there is a commar in a quoted string, then we drop the commar as
         // it breaks the tokeniser
         *iter = fixQuotes(*iter);
 
         QStringList fields = iter->split(",");
 
-        if (fields.size() != 4) continue;
+        if (fields.size() != 4) {
+          continue;
+        }
 
         fields[0].remove(0, 1).chop(1);
         fields[1].remove(0, 1).chop(1);

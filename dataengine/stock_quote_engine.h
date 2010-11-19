@@ -19,11 +19,13 @@ class StockQuoteEngine : public Plasma::DataEngine
   private slots:
     void update();
     void dataArrived(KIO::Job* job, const QByteArray& data);
+    void jobFinished(KJob* job);
 
   private:
     QString fixQuotes(const QString& string);
 
     QTimer m_timer;
     QTimer m_add_timer;
+    QString m_data;
 };
 

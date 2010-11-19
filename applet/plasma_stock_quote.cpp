@@ -13,6 +13,7 @@
 #include "stock_item.h"
 #include "overall_stock_item.h"
 #include "footer_item.h"
+#include "config.h"
 
 #include <QtGui>
 
@@ -58,7 +59,7 @@ PlasmaStockQuote::graphicsWidget()
                                      QSizePolicy::Preferred);
 
     // read in the stock list
-    KConfigGroup configGroup = config();
+    KConfigGroup configGroup = config(PROJECT_NAME);
     m_stock_list << configGroup.readEntry("stocks",  QVariantList());
     m_opacity    = configGroup.readEntry("opacity", 1.0);
 

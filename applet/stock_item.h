@@ -11,14 +11,15 @@ class StockItem : public QGraphicsWidget
   Q_OBJECT
 
   public:
+    virtual ~StockItem() {};
     StockItem(bool even, unsigned int count, double price_paid, QGraphicsItem* parent = 0);
 
     virtual void paint(QPainter* painter, 
                        const QStyleOptionGraphicsItem* option,
                        QWidget* widget);
 
-  public slots:
-    void dataUpdated(const QString& source, const Plasma::DataEngine::Data& data);
+  public Q_SLOTS:
+    virtual void dataUpdated(const QString& source, const Plasma::DataEngine::Data& data);
 
   protected:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent* event);
